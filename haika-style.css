@@ -70,6 +70,7 @@
   justify-content: center;
   background: transparent !important; /* پس‌زمینه شفاف برای آیکون */
   border: none;
+  gap: 0; /* حذف فاصله اضافی */
 }
 
 .haika-menu-btn.icon-only:hover {
