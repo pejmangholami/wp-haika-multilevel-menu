@@ -141,13 +141,20 @@
 .haika-navbar .sub-menu {
   display: none;
   position: absolute;
-  right: 100%;
-  top: 0;
+  left: 100%; /* باز شدن به سمت راست */
+  right: auto;
+  top: -1px; /* هم‌ترازی بهتر */
   background: white;
   min-width: 180px;
   border-radius: 6px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   border: 1px solid #ddd;
+}
+
+/* اگر منو در سمت چپ باشد، زیرمنو به چپ باز شود */
+.haika-menu-container.left-position .haika-navbar .sub-menu {
+    left: auto;
+    right: 100%;
 }
 
 .haika-navbar li:hover > .sub-menu {
