@@ -40,6 +40,7 @@
   height: 20px;
   object-fit: contain;
   flex-shrink: 0;
+  pointer-events: none; /* اجازه می‌دهد کلیک به دکمه والد برسد */
   /* حذف فیلتر سفید کردن آیکون برای حفظ شفافیت */
 }
 
@@ -103,8 +104,10 @@
   display: none;
   background: white;
   position: absolute;
-  top: 100%;
-  right: 0;
+  top: 0; /* باز شدن در کنار دکمه، نه زیر آن */
+  left: 100%; /* باز شدن در سمت راست */
+  right: auto;
+  margin-left: 5px; /* فاصله کوچک از دکمه */
   min-width: 200px;
   border-radius: 6px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
