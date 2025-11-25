@@ -126,7 +126,9 @@ class HaikaMultilevelMenu {
                 </nav>
             </div>';
 
-        return "<div class='{$container_class}'>{$button_html}{$sidebar_html}</div>";
+        $button_container_html = "<div class='{$container_class}'>{$button_html}</div>";
+
+        return $button_container_html . $sidebar_html;
     }
 
     public function admin_menu() {

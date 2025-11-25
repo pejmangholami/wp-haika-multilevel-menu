@@ -1,18 +1,7 @@
-/* فایل haika-style.css */
+/* --- Button Styles (Preserved & Cleaned) --- */
 .haika-menu-container {
-  position: relative;
-  direction: rtl;
   display: inline-block;
-}
-
-/* تنظیم جهت منو برای گوشه چپ */
-.haika-menu-container.left-position {
-  direction: ltr;
-}
-
-.haika-menu-container.left-position .haika-navbar {
-  left: 0;
-  right: auto;
+  /* position: relative; has been removed to avoid z-index stacking issues */
 }
 
 .haika-menu-btn {
@@ -28,6 +17,8 @@
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
+  position: relative; /* Ensures the button can have a z-index */
+  z-index: 39; /* Places the button just below the sidebar (which is z-40) */
 }
 
 .haika-menu-btn:hover {
@@ -40,10 +31,9 @@
   height: 20px;
   object-fit: contain;
   flex-shrink: 0;
-  /* حذف فیلتر سفید کردن آیکون برای حفظ شفافیت */
 }
 
-/* تنظیمات سایز آیکون بر اساس تنظیمات */
+/* Icon Sizing from Admin Panel */
 .haika-menu-btn[data-icon-size="16"] .menu-icon { width: 16px; height: 16px; }
 .haika-menu-btn[data-icon-size="18"] .menu-icon { width: 18px; height: 18px; }
 .haika-menu-btn[data-icon-size="20"] .menu-icon { width: 20px; height: 20px; }
@@ -63,107 +53,21 @@
 .haika-menu-btn[data-icon-size="48"] .menu-icon { width: 48px; height: 48px; }
 .haika-menu-btn[data-icon-size="50"] .menu-icon { width: 50px; height: 50px; }
 
-/* حالت فقط آیکون (بدون متن) */
+/* Icon Only State */
 .haika-menu-btn.icon-only {
   padding: 12px;
   min-width: 44px;
   justify-content: center;
-  background: transparent !important; /* پس‌زمینه شفاف برای آیکون */
+  background: transparent !important;
   border: none;
 }
 
 .haika-menu-btn.icon-only:hover {
-  background: rgba(0,0,0,0.1) !important; /* هاور خفیف */
+  background: rgba(0,0,0,0.1) !important;
   transform: scale(1.05);
 }
 
-/* حالت باز شدن برای آیکون فقط */
-.haika-menu-btn.icon-only.menu-open {
-  background: rgba(0,0,0,0.2) !important;
-}
-
-.haika-menu-btn.icon-only.menu-open:hover {
-  background: rgba(0,0,0,0.3) !important;
-}
-
-/* انیمیشن برای تغییر حالت */
-.haika-menu-btn.menu-open {
-  background: #d63031;
-}
-
-.haika-menu-btn.menu-open:hover {
-  background: #b92929;
-}
-
-.haika-navbar {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: none;
-  background: white;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  min-width: 200px;
-  border-radius: 6px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  z-index: 1000;
-  border: 1px solid #ddd;
-  direction: rtl; /* اطمینان از راست به چپ بودن منو */
-}
-
-.haika-navbar.active {
-  display: block;
-}
-
-.haika-navbar li {
-  position: relative;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.haika-navbar li:last-child {
-  border-bottom: none;
-}
-
-.haika-navbar a {
-  display: block;
-  padding: 12px 15px;
-  color: #333;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.haika-navbar a:hover {
-  background: #f8f8f8;
-  color: #ff8c00;
-}
-
-.haika-navbar .sub-menu {
-  display: none;
-  position: absolute;
-  right: 100%;
-  top: 0;
-  background: white;
-  min-width: 180px;
-  border-radius: 6px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  border: 1px solid #ddd;
-}
-
-.haika-navbar li:hover > .sub-menu {
-  display: block;
-}
-
-/* ریسپانسیو */
-@media (max-width: 768px) {
-  .haika-navbar {
-    min-width: 180px;
-  }
-  
-  .haika-navbar .sub-menu {
-    min-width: 160px;
-  }
-}/* New styles from menu.html */
+/* --- Sidebar Menu Styles (from menu.html) --- */
 #sidebar {
     direction: rtl;
 }

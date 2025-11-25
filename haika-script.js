@@ -6,6 +6,7 @@ jQuery(document).ready(function($) {
     if (menuToggle.length && sidebar.length) {
         menuToggle.on('click', (e) => {
             e.preventDefault();
+            e.stopPropagation(); // Prevents the click from bubbling up to the document
             isMenuOpen = !isMenuOpen;
             
             if (isMenuOpen) {
@@ -18,6 +19,7 @@ jQuery(document).ready(function($) {
 
     // Level 3 submenu toggle
     $(document).on('click', '.level3-toggle', function(e) {
+        e.stopPropagation(); // Prevent document click handler from firing
         const toggle = $(e.currentTarget);
         const parent = toggle.closest('.level3-parent');
         const submenu = parent.find('.level3-submenu');
@@ -29,7 +31,8 @@ jQuery(document).ready(function($) {
 
     // Close menu when clicking outside of it
     $(document).on('click', function(e) {
-        if (isMenuOpen && !$(e.target).closest('.haika-menu-container').length) {
+        // If the menu is open and the click is not on the button or inside the sidebar
+        if (isMenuOpen && !menuToggle.is(e.target) && menuToggle.has(e.target).length === 0 && !sidebar.is(e.target) && sidebar.has(e.target).length === 0) {
             isMenuOpen = false;
             sidebar.addClass('-translate-x-full').removeClass('translate-x-0');
         }
