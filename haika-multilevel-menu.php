@@ -31,8 +31,30 @@ class HaikaMultilevelMenu {
     }
 
     public function enqueue_scripts() {
-        wp_enqueue_style('haika-menu-style', plugin_dir_url(__FILE__) . 'haika-style.css', array(), '1.3');
-        wp_enqueue_script('haika-menu-script', plugin_dir_url(__FILE__) . 'haika-script.js', array('jquery'), '1.3', true);
+        wp_enqueue_style('haika-google-fonts', 'https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap', array(), null);
+        wp_enqueue_style('haika-menu-style', plugin_dir_url(__FILE__) . 'haika-style.css', array(), '1.4');
+        wp_enqueue_script('haika-tailwind-cdn', 'https://cdn.tailwindcss.com?plugins=forms,typography', array(), null, false);
+        wp_add_inline_script('haika-tailwind-cdn', '
+          tailwind.config = {
+            darkMode: "class",
+            theme: {
+              extend: {
+                colors: {
+                  primary: "#FFA500",
+                  "background-light": "#F8FAFC",
+                  "background-dark": "#0B1120",
+                },
+                fontFamily: {
+                  display: ["Vazirmatn", "sans-serif"],
+                },
+                borderRadius: {
+                  DEFAULT: "0.5rem",
+                },
+              },
+            },
+          };
+        ');
+        wp_enqueue_script('haika-menu-script', plugin_dir_url(__FILE__) . 'haika-script.js', array('jquery'), '1.4', true);
         
         // اضافه کردن متغیرهای JavaScript
         wp_localize_script('haika-menu-script', 'haika_menu_vars', array(
@@ -42,70 +64,71 @@ class HaikaMultilevelMenu {
     }
 
     public function render_menu($atts) {
-        // تنظیمات شورت کد
+        // Retain the original button logic
         $atts = shortcode_atts(array(
             'button_text' => get_option('haika_menu_button_text', '☰ منو'),
             'button_icon' => get_option('haika_menu_button_icon', ''),
-            'icon_size' => get_option('haika_menu_icon_size', '20'),
-            'position' => 'right' // right یا left
+            'icon_size'   => get_option('haika_menu_icon_size', '20'),
+            'position'    => 'right'
         ), $atts);
 
-        // دریافت منو از وردپرس
-        $menu_html = wp_nav_menu(array(
-            'theme_location' => 'haika_multilevel_menu',
-            'container' => false,
-            'menu_class' => 'haika-navbar',
-            'echo' => false,
-            'walker' => new HaikaMenuWalker()
-        ));
-
-        if (empty($menu_html)) {
-            return '<p style="background: #fff3cd; padding: 10px; border: 1px solid #ffeaa7; border-radius: 5px;">منویی تعریف نشده است. از پنل ادمین > ظاهر > منوها یک منو ایجاد کنید و آن را به "منوی چندسطحی هایکا" اختصاص دهید.</p>';
-        }
-
-        $button_text = esc_html($atts['button_text']);
-        $button_icon = esc_url($atts['button_icon']);
-        $icon_size = intval($atts['icon_size']);
-        $button_color = get_option('haika_menu_button_color', '#ff8c00');
-        
-        // تشخیص موقعیت منو
-        $container_class = 'haika-menu-container';
-        if ($atts['position'] === 'left') {
-            $container_class .= ' left-position';
-        }
-        
-        // ساخت محتوای دکمه
-        $button_content = '';
-        $button_class = 'haika-menu-btn';
-        $button_style = '';
+        $button_text    = esc_html($atts['button_text']);
+        $button_icon    = esc_url($atts['button_icon']);
+        $icon_size      = intval($atts['icon_size']);
+        $button_color   = get_option('haika_menu_button_color', '#ff8c00');
+        $container_class = 'haika-menu-container ' . ($atts['position'] === 'left' ? 'left-position' : '');
+        $button_class   = 'haika-menu-btn';
+        $button_style   = '';
         
         if (!empty($button_icon)) {
-            // اگر متن خالی است، فقط آیکون
             if (empty($button_text) || $button_text === '☰ منو' || trim($button_text) === '') {
                 $button_class .= ' icon-only';
                 $button_content = '<img src="' . $button_icon . '" alt="منو" class="menu-icon">';
-                // برای آیکون فقط، پس‌زمینه شفاف
                 $button_style = 'background: transparent !important;';
             } else {
-                // آیکون + متن
                 $button_content = '<img src="' . $button_icon . '" alt="منو" class="menu-icon"> ' . $button_text;
                 $button_style = 'background-color: ' . $button_color . ';';
             }
         } else {
-            // فقط متن
             $button_content = $button_text;
             $button_style = 'background-color: ' . $button_color . ';';
         }
         
-        return "
-        <div class='{$container_class}'>
+        $button_html = "
             <button class='{$button_class}' 
                     data-text='{$button_text}' 
                     data-icon='{$button_icon}' 
                     data-icon-size='{$icon_size}'
-                    style='{$button_style}'>{$button_content}</button>
-            {$menu_html}
-        </div>";
+                    style='{$button_style}'>{$button_content}</button>";
+
+        // Get menu items using the new Tailwind walker
+        $menu_items = wp_nav_menu(array(
+            'theme_location' => 'haika_multilevel_menu',
+            'container'      => false,
+            'items_wrap'     => '%3$s',
+            'echo'           => false,
+            'walker'         => new Haika_Tailwind_Menu_Walker(),
+            'depth'          => 3,
+        ));
+
+        if (empty($menu_items)) {
+            return '<p style="background: #fff3cd; padding: 10px; border: 1px solid #ffeaa7; border-radius: 5px;">منویی تعریف نشده است. از پنل ادمین > ظاهر > منوها یک منو ایجاد کنید و آن را به "منوی چندسطحی هایکا" اختصاص دهید.</p>';
+        }
+
+        // Combine the original button with the new menu structure
+        $sidebar_html = '
+            <div id="sidebar" class="fixed left-0 top-0 h-screen w-80 shadow-lg flex flex-col items-center py-8 transition-transform duration-500 ease-in-out -translate-x-full z-40" style="background-color: #D6D9DB;">
+                <div class="w-2.5 h-2.5 rounded-full mb-12" style="background-color: #817C7A;"></div>
+                <nav class="w-full">
+                    <ul class="space-y-6 text-center font-medium text-lg" style="color: #817C7A;">
+                        ' . $menu_items . '
+                    </ul>
+                </nav>
+            </div>';
+
+        $button_container_html = "<div class='{$container_class}'>{$button_html}</div>";
+
+        return $button_container_html . $sidebar_html;
     }
 
     public function admin_menu() {
@@ -287,33 +310,63 @@ class HaikaMultilevelMenu {
     }
 }
 
-// کلاس Walker ساده برای منو
-class HaikaMenuWalker extends Walker_Nav_Menu {
-    
-    function start_lvl(&$output, $depth = 0, $args = null) {
-        $output .= "\n<ul class='sub-menu'>\n";
+
+
+class Haika_Tailwind_Menu_Walker extends Walker_Nav_Menu {
+    // start_lvl is called when a new submenu is created.
+    public function start_lvl(&$output, $depth = 0, $args = null) {
+        if ($depth === 0) {
+            // Level 2 submenu wrapper
+            $output .= '<div class="hidden group-hover:flex absolute -top-8 left-64 w-96 shadow-xl transition-all duration-300 z-50 level2-box">';
+            $output .= '<div class="w-full p-8 pt-20 relative z-10">';
+            $output .= '<ul class="space-y-4 text-xl font-semibold w-full text-left" style="color: #817C7A;">';
+        } elseif ($depth === 1) {
+            // Level 3 submenu
+            $output .= '<ul class="hidden level3-submenu mr-6 mt-3 space-y-2 text-lg font-normal animate-slideIn text-right" style="color: #817C7A;">';
+        }
     }
 
-    function end_lvl(&$output, $depth = 0, $args = null) {
-        $output .= "</ul>\n";
+    // end_lvl is called when a submenu is closed.
+    public function end_lvl(&$output, $depth = 0, $args = null) {
+        if ($depth === 0) {
+            $output .= '</ul></div></div>';
+        } elseif ($depth === 1) {
+            $output .= '</ul>';
+        }
     }
 
-    function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
-        $classes = empty($item->classes) ? array() : (array) $item->classes;
-        $class_names = join(' ', apply_filters('nav_menu_css_class', array_filter($classes), $item, $args));
-        $class_names = $class_names ? ' class="' . esc_attr($class_names) . '"' : '';
-        
-        $output .= "<li{$class_names}>";
-        
-        $link = '<a href="' . esc_attr($item->url) . '">';
-        $link .= apply_filters('the_title', $item->title, $item->ID);
-        $link .= '</a>';
-        
-        $output .= apply_filters('walker_nav_menu_start_el', $link, $item, $depth, $args);
+    // start_el is called for each menu item.
+    public function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+        if ($depth === 0) {
+            // Level 1 items
+            $is_parent = in_array('menu-item-has-children', $item->classes);
+            $li_classes = $is_parent ? 'group relative text-right px-12' : 'text-right px-12';
+            $output .= '<li class="' . $li_classes . '">';
+            $output .= '<a class="block py-2 hover:opacity-70 transition-opacity cursor-pointer" href="' . esc_url($item->url) . '">' . esc_html($item->title) . '</a>';
+        } elseif ($depth === 1) {
+            // Level 2 items
+            $is_parent = in_array('menu-item-has-children', $item->classes);
+            if ($is_parent) {
+                $output .= '<li class="level3-parent">';
+                $output .= '<div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity level3-toggle">';
+                $output .= '<span class="w-3 h-3 bg-primary rounded-full"></span>';
+                $output .= '<span>' . esc_html($item->title) . '</span>';
+                $output .= '</div>';
+            } else {
+                $output .= '<li class="flex items-center gap-3">';
+                $output .= '<span class="w-3 h-3 bg-primary rounded-full"></span>';
+                $output .= '<a href="' . esc_url($item->url) . '" class="hover:opacity-70 transition-opacity">' . esc_html($item->title) . '</a>';
+                $output .= '</li>';
+            }
+        } elseif ($depth === 2) {
+            // Level 3 items
+            $output .= '<li><a class="hover:text-primary transition-colors block py-1" href="' . esc_url($item->url) . '">' . esc_html($item->title) . '</a></li>';
+        }
     }
 
-    function end_el(&$output, $item, $depth = 0, $args = null) {
-        $output .= "</li>\n";
+    // end_el is called when a menu item is closed.
+    public function end_el(&$output, $item, $depth = 0, $args = null) {
+        $output .= '</li>';
     }
 }
 
