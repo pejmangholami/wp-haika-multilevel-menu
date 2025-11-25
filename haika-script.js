@@ -3,17 +3,45 @@ jQuery(document).ready(function($) {
     const sidebar = $('#sidebar');
     let isMenuOpen = false;
 
+    // Get values from localized script
+    const { spacing_desktop, spacing_tablet, spacing_mobile, animation_type } = haika_menu_vars;
+
+    const spacing = {
+        desktop: spacing_desktop || 65,
+        tablet: spacing_tablet || 55,
+        mobile: spacing_mobile || 50,
+    };
+
+    const getcurrentSpacing = () => {
+        const screenWidth = $(window).width();
+        if (screenWidth <= 480) return spacing.mobile;
+        if (screenWidth <= 768) return spacing.tablet;
+        return spacing.desktop;
+    };
+
+    const openMenu = () => {
+        isMenuOpen = true;
+        if (animation_type === 'slide') {
+            sidebar.removeClass('-translate-x-full').css('transform', `translateX(${getcurrentSpacing()}px)`);
+        } else {
+            sidebar.removeClass('opacity-0 pointer-events-none').css('transform', `translateX(${getcurrentSpacing()}px)`);
+        }
+    };
+
+    const closeMenu = () => {
+        isMenuOpen = false;
+        if (animation_type === 'slide') {
+            sidebar.addClass('-translate-x-full').css('transform', '');
+        } else {
+            sidebar.addClass('opacity-0 pointer-events-none');
+        }
+    };
+
     if (menuToggle.length && sidebar.length) {
         menuToggle.on('click', (e) => {
             e.preventDefault();
-            e.stopPropagation(); // Prevents the click from bubbling up to the document
-            isMenuOpen = !isMenuOpen;
-            
-            if (isMenuOpen) {
-                sidebar.removeClass('-translate-x-full').addClass('translate-x-0');
-            } else {
-                sidebar.addClass('-translate-x-full').removeClass('translate-x-0');
-            }
+            e.stopPropagation();
+            isMenuOpen ? closeMenu() : openMenu();
         });
     }
 
@@ -31,10 +59,38 @@ jQuery(document).ready(function($) {
 
     // Close menu when clicking outside of it
     $(document).on('click', function(e) {
-        // If the menu is open and the click is not on the button or inside the sidebar
         if (isMenuOpen && !menuToggle.is(e.target) && menuToggle.has(e.target).length === 0 && !sidebar.is(e.target) && sidebar.has(e.target).length === 0) {
-            isMenuOpen = false;
-            sidebar.addClass('-translate-x-full').removeClass('translate-x-0');
+            closeMenu();
+        }
+    });
+
+    // Re-apply spacing on window resize
+    $(window).on('resize', () => {
+        if (isMenuOpen) {
+            sidebar.css('transform', `translateX(${getcurrentSpacing()}px)`);
+        }
+    });
+
+    // Dynamically set max-height and position for level 2 submenus
+    $('#sidebar').on('mouseenter', '.group', function() {
+        const $this = $(this);
+        const $submenuWrapper = $this.find('.level2-box');
+        const $submenuContent = $submenuWrapper.find('.overflow-y-auto');
+
+        if ($submenuWrapper.length) {
+            const rect = $this[0].getBoundingClientRect();
+            const sidebarRect = $('#sidebar')[0].getBoundingClientRect();
+
+            // Position the submenu
+            $submenuWrapper.css({
+                top: rect.top,
+                left: sidebarRect.right - 50, // 50px overlap
+            });
+
+            // Calculate and set max-height
+            const windowHeight = $(window).height();
+            const maxHeight = windowHeight - rect.top - 20; // 20px buffer
+            $submenuContent.css('max-height', `${maxHeight}px`);
         }
     });
 });
