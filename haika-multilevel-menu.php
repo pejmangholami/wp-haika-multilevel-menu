@@ -59,7 +59,11 @@ class HaikaMultilevelMenu {
         // اضافه کردن متغیرهای JavaScript
         wp_localize_script('haika-menu-script', 'haika_menu_vars', array(
             'button_icon' => get_option('haika_menu_button_icon', ''),
-            'button_text' => get_option('haika_menu_button_text', '☰ منو')
+            'button_text' => get_option('haika_menu_button_text', '☰ منو'),
+            'spacing_desktop' => get_option('haika_menu_spacing_desktop', '65'),
+            'spacing_tablet' => get_option('haika_menu_spacing_tablet', '55'),
+            'spacing_mobile' => get_option('haika_menu_spacing_mobile', '50'),
+            'animation_type' => get_option('haika_menu_animation_type', 'slide'),
         ));
     }
 
@@ -116,11 +120,19 @@ class HaikaMultilevelMenu {
         }
 
         // Combine the original button with the new menu structure
+        $animation_type = get_option('haika_menu_animation_type', 'slide');
+        $sidebar_classes = 'fixed left-0 top-0 h-screen w-80 shadow-lg flex flex-col items-end py-8 z-40';
+        if ($animation_type === 'slide') {
+            $sidebar_classes .= ' transition-transform duration-500 ease-in-out -translate-x-full';
+        } else {
+            $sidebar_classes .= ' transition-opacity duration-500 ease-in-out opacity-0 pointer-events-none';
+        }
+
         $sidebar_html = '
-            <div id="sidebar" class="fixed left-0 top-0 h-screen w-80 shadow-lg flex flex-col items-center py-8 transition-transform duration-500 ease-in-out -translate-x-full z-40" style="background-color: #D6D9DB;">
-                <div class="w-2.5 h-2.5 rounded-full mb-12" style="background-color: #817C7A;"></div>
+            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: #D6D9DB;">
+                <div class="w-2.5 h-2.5 rounded-full mb-12 mr-12" style="background-color: #817C7A;"></div>
                 <nav class="w-full">
-                    <ul class="space-y-6 text-center font-medium text-lg" style="color: #817C7A;">
+                    <ul class="space-y-6 text-center font-medium text-lg overflow-y-auto max-h-screen" style="color: #817C7A;">
                         ' . $menu_items . '
                     </ul>
                 </nav>
@@ -148,6 +160,10 @@ class HaikaMultilevelMenu {
         register_setting('haika_menu_settings', 'haika_menu_button_icon');
         register_setting('haika_menu_settings', 'haika_menu_button_color');
         register_setting('haika_menu_settings', 'haika_menu_icon_size');
+        register_setting('haika_menu_settings', 'haika_menu_spacing_desktop');
+        register_setting('haika_menu_settings', 'haika_menu_spacing_tablet');
+        register_setting('haika_menu_settings', 'haika_menu_spacing_mobile');
+        register_setting('haika_menu_settings', 'haika_menu_animation_type');
     }
 
     public function admin_page() {
@@ -156,6 +172,10 @@ class HaikaMultilevelMenu {
             update_option('haika_menu_button_text', sanitize_text_field($_POST['haika_menu_button_text']));
             update_option('haika_menu_button_color', sanitize_hex_color($_POST['haika_menu_button_color']));
             update_option('haika_menu_icon_size', intval($_POST['haika_menu_icon_size']));
+            update_option('haika_menu_spacing_desktop', intval($_POST['haika_menu_spacing_desktop']));
+            update_option('haika_menu_spacing_tablet', intval($_POST['haika_menu_spacing_tablet']));
+            update_option('haika_menu_spacing_mobile', intval($_POST['haika_menu_spacing_mobile']));
+            update_option('haika_menu_animation_type', sanitize_text_field($_POST['haika_menu_animation_type']));
             
             // مدیریت آپلود عکس
             if (!empty($_POST['haika_menu_button_icon'])) {
@@ -170,6 +190,10 @@ class HaikaMultilevelMenu {
         $button_icon = get_option('haika_menu_button_icon', '');
         $button_color = get_option('haika_menu_button_color', '#ff8c00');
         $icon_size = get_option('haika_menu_icon_size', '20');
+        $spacing_desktop = get_option('haika_menu_spacing_desktop', '65');
+        $spacing_tablet = get_option('haika_menu_spacing_tablet', '55');
+        $spacing_mobile = get_option('haika_menu_spacing_mobile', '50');
+        $animation_type = get_option('haika_menu_animation_type', 'slide');
         
         ?>
         <div class="wrap">
@@ -220,6 +244,41 @@ class HaikaMultilevelMenu {
                         <th scope="row">رنگ پس‌زمینه دکمه</th>
                         <td>
                             <input type="color" name="haika_menu_button_color" value="<?php echo esc_attr($button_color); ?>" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">فاصله منو از چپ (دسکتاپ)</th>
+                        <td>
+                            <input type="number" name="haika_menu_spacing_desktop" value="<?php echo esc_attr($spacing_desktop); ?>" min="0" /> پیکسل
+                            <p class="description">فاصله منو از لبه چپ صفحه در دستگاه‌های بزرگ.</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">فاصله منو از چپ (تبلت)</th>
+                        <td>
+                            <input type="number" name="haika_menu_spacing_tablet" value="<?php echo esc_attr($spacing_tablet); ?>" min="0" /> پیکسل
+                            <p class="description">فاصله منو از لبه چپ صفحه در تبلت.</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">فاصله منو از چپ (موبایل)</th>
+                        <td>
+                            <input type="number" name="haika_menu_spacing_mobile" value="<?php echo esc_attr($spacing_mobile); ?>" min="0" /> پیکسل
+                            <p class="description">فاصله منو از لبه چپ صفحه در موبایل.</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">نوع انیمیشن باز شدن منو</th>
+                        <td>
+                            <select name="haika_menu_animation_type">
+                                <option value="slide" <?php selected($animation_type, 'slide'); ?>>Slide</option>
+                                <option value="fade" <?php selected($animation_type, 'fade'); ?>>Fade</option>
+                            </select>
+                            <p class="description">انیمیشن باز و بسته شدن منو را انتخاب کنید.</p>
                         </td>
                     </tr>
                 </table>
@@ -317,8 +376,8 @@ class Haika_Tailwind_Menu_Walker extends Walker_Nav_Menu {
     public function start_lvl(&$output, $depth = 0, $args = null) {
         if ($depth === 0) {
             // Level 2 submenu wrapper
-            $output .= '<div class="hidden group-hover:flex absolute -top-8 left-64 w-96 shadow-xl transition-all duration-300 z-50 level2-box">';
-            $output .= '<div class="w-full p-8 pt-20 relative z-10">';
+            $output .= '<div class="hidden group-hover:flex fixed w-96 shadow-xl transition-all duration-300 z-50 level2-box">';
+            $output .= '<div class="w-full p-8 pt-20 relative z-10 overflow-y-auto">';
             $output .= '<ul class="space-y-4 text-xl font-semibold w-full text-left" style="color: #817C7A;">';
         } elseif ($depth === 1) {
             // Level 3 submenu
