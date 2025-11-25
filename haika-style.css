@@ -163,4 +163,55 @@
   .haika-navbar .sub-menu {
     min-width: 160px;
   }
+}/* New styles from menu.html */
+#sidebar {
+    direction: rtl;
+}
+
+.group:hover .group-hover\:flex {
+    display: flex;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+}
+
+.level2-box {
+    position: relative;
+    background-color: #e4e6e7;
+}
+
+.level2-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 50px 32px;
+    border-color: transparent transparent #f8fafc transparent;
+    z-index: 1;
+}
+
+.level2-box::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 32px;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to right bottom, transparent 0%, transparent 49%, #e4e6e7 50%, #e4e6e7 100%);
+    z-index: 0;
 }
