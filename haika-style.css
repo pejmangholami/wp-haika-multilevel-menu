@@ -119,3 +119,12 @@
     background: linear-gradient(to right bottom, transparent 0%, transparent 49%, #e4e6e7 50%, #e4e6e7 100%);
     z-index: 0;
 }
+
+/* Hide scrollbar */
+.overflow-y-auto::-webkit-scrollbar {
+  display: none;
+}
+.overflow-y-auto {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
