@@ -21,6 +21,37 @@ class HaikaMultilevelMenu {
         add_action('admin_menu', array($this, 'admin_menu'));
         add_action('admin_init', array($this, 'admin_init'));
         add_action('wp_ajax_upload_menu_icon', array($this, 'handle_icon_upload'));
+        add_action('wp_head', array($this, 'inject_dynamic_styles'));
+    }
+
+    public function inject_dynamic_styles() {
+        $lvl1_bg_color = get_option('haika_menu_lvl1_bg_color', '#D6D9DB');
+        $lvl2_bg_color = get_option('haika_menu_lvl2_bg_color', '#e4e6e7');
+        $text_color = get_option('haika_menu_text_color', '#817C7A');
+        $text_hover_color = get_option('haika_menu_text_hover_color', '#000000');
+
+        $shape_box_width = get_option('haika_menu_shape_box_width', '350');
+        $shape_top_offset = get_option('haika_menu_shape_top_offset', '50'); // Changed default to 50px
+        $shape_step_width = get_option('haika_menu_shape_step_width', '36');
+        $shape_step_height = get_option('haika_menu_shape_step_height', '25');
+        $shape_slope_height = get_option('haika_menu_shape_slope_height', '36');
+
+        echo <<<CSS
+<style>
+    :root {
+        --haika-lvl1-bg: {$lvl1_bg_color};
+        --haika-lvl2-bg: {$lvl2_bg_color};
+        --haika-text-color: {$text_color};
+        --haika-text-hover-color: {$text_hover_color};
+
+        --haika-box-width: {$shape_box_width}px;
+        --haika-top-offset: {$shape_top_offset}px;
+        --haika-step-width: {$shape_step_width}px;
+        --haika-step-height: {$shape_step_height}px;
+        --haika-slope-height: {$shape_slope_height}px;
+    }
+</style>
+CSS;
     }
 
     public function init() {
@@ -129,12 +160,12 @@ class HaikaMultilevelMenu {
         }
 
         $sidebar_html = '
-            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: #D6D9DB; transform: translateX(-100%)">
+            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: var(--haika-lvl1-bg); transform: translateX(-100%)">
                 <div class="w-full text-right px-12">
-                    <div class="w-2.5 h-2.5 rounded-full mb-12 inline-block" style="background-color: #817C7A;"></div>
+                    <div class="w-2.5 h-2.5 rounded-full mb-12 inline-block" style="background-color: var(--haika-text-color);"></div>
                 </div>
                 <nav class="w-full">
-                    <ul class="space-y-6 text-center font-medium text-lg overflow-y-auto max-h-screen" style="color: #817C7A;">
+                    <ul class="space-y-6 text-center font-medium text-lg overflow-y-auto max-h-screen" style="color: var(--haika-text-color);">
                         ' . $menu_items . '
                     </ul>
                 </nav>
@@ -166,6 +197,17 @@ class HaikaMultilevelMenu {
         register_setting('haika_menu_settings', 'haika_menu_spacing_tablet');
         register_setting('haika_menu_settings', 'haika_menu_spacing_mobile');
         register_setting('haika_menu_settings', 'haika_menu_animation_type');
+
+        // New appearance settings
+        register_setting('haika_menu_settings', 'haika_menu_lvl1_bg_color');
+        register_setting('haika_menu_settings', 'haika_menu_lvl2_bg_color');
+        register_setting('haika_menu_settings', 'haika_menu_text_color');
+        register_setting('haika_menu_settings', 'haika_menu_text_hover_color');
+        register_setting('haika_menu_settings', 'haika_menu_shape_box_width');
+        register_setting('haika_menu_settings', 'haika_menu_shape_top_offset');
+        register_setting('haika_menu_settings', 'haika_menu_shape_step_width');
+        register_setting('haika_menu_settings', 'haika_menu_shape_step_height');
+        register_setting('haika_menu_settings', 'haika_menu_shape_slope_height');
     }
 
     public function admin_page() {
@@ -179,6 +221,17 @@ class HaikaMultilevelMenu {
             update_option('haika_menu_spacing_mobile', intval($_POST['haika_menu_spacing_mobile']));
             update_option('haika_menu_animation_type', sanitize_text_field($_POST['haika_menu_animation_type']));
             
+            // Save new appearance settings
+            update_option('haika_menu_lvl1_bg_color', sanitize_hex_color($_POST['haika_menu_lvl1_bg_color']));
+            update_option('haika_menu_lvl2_bg_color', sanitize_hex_color($_POST['haika_menu_lvl2_bg_color']));
+            update_option('haika_menu_text_color', sanitize_hex_color($_POST['haika_menu_text_color']));
+            update_option('haika_menu_text_hover_color', sanitize_hex_color($_POST['haika_menu_text_hover_color']));
+            update_option('haika_menu_shape_box_width', intval($_POST['haika_menu_shape_box_width']));
+            update_option('haika_menu_shape_top_offset', intval($_POST['haika_menu_shape_top_offset']));
+            update_option('haika_menu_shape_step_width', intval($_POST['haika_menu_shape_step_width']));
+            update_option('haika_menu_shape_step_height', intval($_POST['haika_menu_shape_step_height']));
+            update_option('haika_menu_shape_slope_height', intval($_POST['haika_menu_shape_slope_height']));
+
             // مدیریت آپلود عکس
             if (!empty($_POST['haika_menu_button_icon'])) {
                 update_option('haika_menu_button_icon', esc_url($_POST['haika_menu_button_icon']));
@@ -197,6 +250,17 @@ class HaikaMultilevelMenu {
         $spacing_mobile = get_option('haika_menu_spacing_mobile', '50');
         $animation_type = get_option('haika_menu_animation_type', 'slide');
         
+        // Get new appearance settings
+        $lvl1_bg_color = get_option('haika_menu_lvl1_bg_color', '#D6D9DB');
+        $lvl2_bg_color = get_option('haika_menu_lvl2_bg_color', '#e4e6e7');
+        $text_color = get_option('haika_menu_text_color', '#817C7A');
+        $text_hover_color = get_option('haika_menu_text_hover_color', '#000000');
+        $shape_box_width = get_option('haika_menu_shape_box_width', '350');
+        $shape_top_offset = get_option('haika_menu_shape_top_offset', '50'); // Changed default to 50px
+        $shape_step_width = get_option('haika_menu_shape_step_width', '36');
+        $shape_step_height = get_option('haika_menu_shape_step_height', '25');
+        $shape_slope_height = get_option('haika_menu_shape_slope_height', '36');
+
         ?>
         <div class="wrap">
             <h1>تنظیمات منو هایکا</h1>
@@ -281,6 +345,65 @@ class HaikaMultilevelMenu {
                                 <option value="fade" <?php selected($animation_type, 'fade'); ?>>Fade</option>
                             </select>
                             <p class="description">انیمیشن باز و بسته شدن منو را انتخاب کنید.</p>
+                        </td>
+                    </tr>
+                </table>
+
+                <h2>تنظیمات ظاهری</h2>
+                <table class="form-table">
+                    <!-- Color Settings -->
+                    <tr>
+                        <th scope="row">رنگ پس‌زمینه سطح ۱</th>
+                        <td><input type="color" name="haika_menu_lvl1_bg_color" value="<?php echo esc_attr($lvl1_bg_color); ?>" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">رنگ پس‌زمینه سطح ۲</th>
+                        <td><input type="color" name="haika_menu_lvl2_bg_color" value="<?php echo esc_attr($lvl2_bg_color); ?>" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">رنگ متن</th>
+                        <td><input type="color" name="haika_menu_text_color" value="<?php echo esc_attr($text_color); ?>" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">رنگ متن (هاور)</th>
+                        <td><input type="color" name="haika_menu_text_hover_color" value="<?php echo esc_attr($text_hover_color); ?>" /></td>
+                    </tr>
+
+                    <!-- Shape Settings -->
+                    <tr><th colspan="2"><h3>تنظیمات شکل منوی سطح ۲</h3></th></tr>
+                    <tr>
+                        <th scope="row">عرض باکس</th>
+                        <td>
+                            <input type="number" name="haika_menu_shape_box_width" value="<?php echo esc_attr($shape_box_width); ?>" /> پیکسل
+                            <p class="description">عرض کلی باکس منوی سطح ۲.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">فاصله از بالا (Top Offset)</th>
+                        <td>
+                            <input type="number" name="haika_menu_shape_top_offset" value="<?php echo esc_attr($shape_top_offset); ?>" /> پیکسل
+                            <p class="description">موقعیت عمودی شروع پله از بالای باکس (به پیکسل).</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">عرض پله</th>
+                        <td>
+                            <input type="number" name="haika_menu_shape_step_width" value="<?php echo esc_attr($shape_step_width); ?>" /> پیکسل
+                            <p class="description">عرض افقی پله در گوشه بالا سمت چپ.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">ارتفاع پله</th>
+                        <td>
+                            <input type="number" name="haika_menu_shape_step_height" value="<?php echo esc_attr($shape_step_height); ?>" /> پیکسل
+                            <p class="description">ارتفاع عمودی پله در گوشه بالا سمت چپ.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">ارتفاع شیب</th>
+                        <td>
+                            <input type="number" name="haika_menu_shape_slope_height" value="<?php echo esc_attr($shape_slope_height); ?>" /> پیکسل
+                            <p class="description">میزان افت ارتفاع خط شیب‌دار در بالای باکس.</p>
                         </td>
                     </tr>
                 </table>
@@ -378,12 +501,12 @@ class Haika_Tailwind_Menu_Walker extends Walker_Nav_Menu {
     public function start_lvl(&$output, $depth = 0, $args = null) {
         if ($depth === 0) {
             // Level 2 submenu wrapper
-            $output .= '<div class="hidden group-hover:flex fixed w-96 shadow-xl transition-all duration-300 z-50 level2-box">';
+            $output .= '<div class="hidden group-hover:flex fixed shadow-xl transition-all duration-300 z-50 level2-box">';
             $output .= '<div class="w-full p-8 pt-20 relative z-10 overflow-y-auto">';
-            $output .= '<ul class="space-y-4 text-xl font-semibold w-full text-left" style="color: #817C7A;">';
+            $output .= '<ul class="space-y-4 text-xl font-semibold w-full text-left" style="color: var(--haika-text-color);">';
         } elseif ($depth === 1) {
             // Level 3 submenu
-            $output .= '<ul class="hidden level3-submenu mr-6 mt-3 space-y-2 text-lg font-normal animate-slideIn text-right" style="color: #817C7A;">';
+            $output .= '<ul class="hidden level3-submenu mr-6 mt-3 space-y-2 text-lg font-normal animate-slideIn text-right" style="color: var(--haika-text-color);">';
         }
     }
 
