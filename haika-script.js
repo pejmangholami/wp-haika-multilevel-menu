@@ -4,7 +4,7 @@ jQuery(document).ready(function($) {
     let isMenuOpen = false;
 
     // Get values from localized script
-    const { spacing_desktop, spacing_tablet, spacing_mobile, animation_type } = haika_menu_vars;
+    const { spacing_desktop, spacing_tablet, spacing_mobile, animation_type, shape_right_offset } = haika_menu_vars;
 
     const spacing = {
         desktop: spacing_desktop || 65,
@@ -72,26 +72,44 @@ jQuery(document).ready(function($) {
         }
     });
 
-    // Dynamically set max-height and position for level 2 submenus
-    $('#sidebar').on('mouseenter', '.group', function() {
+    let activeSubmenu = null;
+
+    // Handle submenu visibility
+    $('#sidebar').on('mouseenter', 'li.group', function() {
         const $this = $(this);
         const $submenuWrapper = $this.find('.level2-box');
-        const $submenuContent = $submenuWrapper.find('.overflow-y-auto');
+
+        if (activeSubmenu && activeSubmenu[0] !== $submenuWrapper[0]) {
+            activeSubmenu.removeClass('is-visible');
+        }
 
         if ($submenuWrapper.length) {
+            activeSubmenu = $submenuWrapper;
+            $submenuWrapper.addClass('is-visible');
+
+            const $submenuContent = $submenuWrapper.find('.overflow-y-auto');
             const rect = $this[0].getBoundingClientRect();
             const sidebarRect = $('#sidebar')[0].getBoundingClientRect();
 
-            // Position the submenu
+            const rightOffset = parseInt(shape_right_offset, 10) || 0;
             $submenuWrapper.css({
                 top: rect.top,
-                left: sidebarRect.right - 100, // 100px overlap
+                left: sidebarRect.right - 100 + rightOffset,
             });
 
-            // Calculate and set max-height
             const windowHeight = $(window).height();
-            const maxHeight = windowHeight - rect.top - 20; // 20px buffer
+            const maxHeight = windowHeight - rect.top - 20;
             $submenuContent.css('max-height', `${maxHeight}px`);
         }
     });
+
+    // Override closeMenu to hide submenu
+    const originalCloseMenu = closeMenu;
+    closeMenu = function() {
+        if (activeSubmenu) {
+            activeSubmenu.removeClass('is-visible');
+            activeSubmenu = null;
+        }
+        originalCloseMenu();
+    };
 });

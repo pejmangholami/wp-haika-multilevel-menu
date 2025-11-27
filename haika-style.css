@@ -138,3 +138,4 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+.level2-box.is-visible { display: flex; }
