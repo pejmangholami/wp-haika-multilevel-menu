@@ -92,32 +92,42 @@
 }
 
 .level2-box {
-    position: relative;
-    background-color: #e4e6e7;
+    width: var(--haika-box-width);
+    background-color: var(--haika-lvl2-bg);
+    clip-path: polygon(
+        0% var(--haika-top-offset),
+        var(--haika-step-width) var(--haika-top-offset),
+        var(--haika-step-width) calc(var(--haika-top-offset) - var(--haika-step-height)),
+        100% calc(var(--haika-top-offset) - var(--haika-step-height) + var(--haika-slope-height)),
+        100% 100%,
+        0% 100%
+    );
 }
 
-.level2-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 0 50px 32px;
-    border-color: transparent transparent #f8fafc transparent;
-    z-index: 1;
+/* General text color */
+#sidebar, .level2-box, .level3-submenu {
+    color: var(--haika-text-color);
 }
 
-.level2-box::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 32px;
-    right: 0;
-    height: 50px;
-    background: linear-gradient(to right bottom, transparent 0%, transparent 49%, #e4e6e7 50%, #e4e6e7 100%);
-    z-index: 0;
+/* Link colors */
+#sidebar a,
+.level2-box a,
+.level3-submenu a {
+    color: var(--haika-text-color);
+    transition: color 0.3s ease;
+}
+
+#sidebar a:hover,
+.level2-box a:hover,
+.level3-submenu a:hover,
+.level3-parent:hover .level3-toggle {
+    color: var(--haika-text-hover-color);
+    opacity: 1; /* Override existing opacity hover */
+}
+
+/* Specific hover overrides for elements without <a> */
+.level3-toggle:hover {
+    color: var(--haika-text-hover-color);
 }
 
 /* Hide scrollbar */
