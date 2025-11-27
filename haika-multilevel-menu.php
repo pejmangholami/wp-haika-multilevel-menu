@@ -51,11 +51,11 @@ class HaikaMultilevelMenu {
         --haika-slope-height: {$shape_slope_height}px;
 
         /* New variables from user request */
-        --haika-lvl1-margin-right: <?php echo get_option('haika_menu_lvl1_margin_right', '0'); ?>px;
-        --haika-lvl1-top-padding: <?php echo get_option('haika_menu_lvl1_top_padding', '0'); ?>px;
-        --haika-lvl1-item-spacing: <?php echo get_option('haika_menu_lvl1_item_spacing', '24'); ?>px;
-        --haika-lvl2-item-spacing: <?php echo get_option('haika_menu_lvl2_item_spacing', '16'); ?>px;
-        --haika-lvl3-item-spacing: <?php echo get_option('haika_menu_lvl3_item_spacing', '8'); ?>px;
+        --haika-lvl1-padding-right: {get_option('haika_menu_lvl1_padding_right', '0')}px;
+        --haika-lvl1-top-padding: {get_option('haika_menu_lvl1_top_padding', '0')}px;
+        --haika-lvl1-item-spacing: {get_option('haika_menu_lvl1_item_spacing', '24')}px;
+        --haika-lvl2-item-spacing: {get_option('haika_menu_lvl2_item_spacing', '16')}px;
+        --haika-lvl3-item-spacing: {get_option('haika_menu_lvl3_item_spacing', '8')}px;
     }
 </style>
 CSS;
@@ -165,7 +165,7 @@ CSS;
 
         // Combine the original button with the new menu structure
         $animation_type = get_option('haika_menu_animation_type', 'slide');
-        $sidebar_classes = 'fixed left-0 top-0 h-screen w-80 shadow-lg flex flex-col py-8 z-40';
+        $sidebar_classes = 'fixed right-0 top-0 h-screen w-80 shadow-lg flex flex-col z-40';
         if ($animation_type === 'slide') {
             $sidebar_classes .= ' transition-transform duration-500 ease-in-out';
         } else {
@@ -173,9 +173,9 @@ CSS;
         }
 
         $sidebar_html = '
-            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: var(--haika-lvl1-bg); transform: translateX(-100%); margin-right: var(--haika-lvl1-margin-right); padding-top: var(--haika-lvl1-top-padding);">
-                <div class="w-full text-right px-12">
-                    <div class="w-2.5 h-2.5 rounded-full mb-12 inline-block" style="background-color: var(--haika-text-color);"></div>
+            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: var(--haika-lvl1-bg); transform: translateX(100%); padding-right: var(--haika-lvl1-padding-right);">
+                <div class="w-full text-right px-12" style="padding-top: var(--haika-lvl1-top-padding);">
+                    <div class="w-2.5 h-2.5 rounded-full mb-12 inline-block" style="background-color: var(--haika-text-color); margin-bottom: var(--haika-lvl1-item-spacing);"></div>
                 </div>
                 <nav class="w-full">
                     <ul class="text-center font-medium text-lg overflow-y-auto max-h-screen" style="color: var(--haika-text-color);">
@@ -223,7 +223,7 @@ CSS;
         register_setting('haika_menu_settings', 'haika_menu_shape_slope_height');
 
         // Register new settings from user request
-        register_setting('haika_menu_settings', 'haika_menu_lvl1_margin_right');
+        register_setting('haika_menu_settings', 'haika_menu_lvl1_padding_right');
         register_setting('haika_menu_settings', 'haika_menu_lvl1_top_padding');
         register_setting('haika_menu_settings', 'haika_menu_shape_right_offset');
         register_setting('haika_menu_settings', 'haika_menu_lvl1_item_spacing');
@@ -254,7 +254,7 @@ CSS;
             update_option('haika_menu_shape_slope_height', intval($_POST['haika_menu_shape_slope_height']));
 
             // Save new settings from user request
-            update_option('haika_menu_lvl1_margin_right', intval($_POST['haika_menu_lvl1_margin_right']));
+            update_option('haika_menu_lvl1_padding_right', intval($_POST['haika_menu_lvl1_padding_right']));
             update_option('haika_menu_lvl1_top_padding', intval($_POST['haika_menu_lvl1_top_padding']));
             update_option('haika_menu_shape_right_offset', intval($_POST['haika_menu_shape_right_offset']));
             update_option('haika_menu_lvl1_item_spacing', intval($_POST['haika_menu_lvl1_item_spacing']));
@@ -407,10 +407,10 @@ CSS;
                     <!-- General Menu Settings -->
                     <tr><th colspan="2"><h3>تنظیمات کلی منو</h3></th></tr>
                     <tr>
-                        <th scope="row">حاشیه منوی سطح ۱ از راست</th>
+                        <th scope="row">فاصله داخلی منو سطح ۱ از راست</th>
                         <td>
-                            <input type="number" name="haika_menu_lvl1_margin_right" value="<?php echo esc_attr(get_option('haika_menu_lvl1_margin_right', '0')); ?>" /> پیکسل
-                            <p class="description">فاصله کلی باکس منوی سطح ۱ از لبه سمت راست صفحه.</p>
+                            <input type="number" name="haika_menu_lvl1_padding_right" value="<?php echo esc_attr(get_option('haika_menu_lvl1_padding_right', '0')); ?>" /> پیکسل
+                            <p class="description">باکس عمودی منوی سطح ۱ را از سمت راست بزرگتر می‌کند بدون اینکه جایگاه نوشته‌ها تغییر کند.</p>
                         </td>
                     </tr>
                      <tr>
