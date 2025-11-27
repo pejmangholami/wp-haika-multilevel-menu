@@ -32,7 +32,7 @@ jQuery(document).ready(function($) {
     const closeMenu = () => {
         isMenuOpen = false;
         if (animation_type === 'slide') {
-            sidebar.css('transform', 'translateX(100%)');
+            sidebar.css('transform', 'translateX(-100%)');
         } else {
             sidebar.addClass('opacity-0 pointer-events-none');
         }

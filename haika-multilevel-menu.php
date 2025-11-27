@@ -36,6 +36,13 @@ class HaikaMultilevelMenu {
         $shape_step_height = get_option('haika_menu_shape_step_height', '25');
         $shape_slope_height = get_option('haika_menu_shape_slope_height', '36');
 
+        // New variables from user request
+        $lvl1_padding_right = get_option('haika_menu_lvl1_padding_right', '0');
+        $lvl1_top_padding = get_option('haika_menu_lvl1_top_padding', '0');
+        $lvl1_item_spacing = get_option('haika_menu_lvl1_item_spacing', '24');
+        $lvl2_item_spacing = get_option('haika_menu_lvl2_item_spacing', '16');
+        $lvl3_item_spacing = get_option('haika_menu_lvl3_item_spacing', '8');
+
         echo <<<CSS
 <style>
     :root {
@@ -51,11 +58,11 @@ class HaikaMultilevelMenu {
         --haika-slope-height: {$shape_slope_height}px;
 
         /* New variables from user request */
-        --haika-lvl1-padding-right: {get_option('haika_menu_lvl1_padding_right', '0')}px;
-        --haika-lvl1-top-padding: {get_option('haika_menu_lvl1_top_padding', '0')}px;
-        --haika-lvl1-item-spacing: {get_option('haika_menu_lvl1_item_spacing', '24')}px;
-        --haika-lvl2-item-spacing: {get_option('haika_menu_lvl2_item_spacing', '16')}px;
-        --haika-lvl3-item-spacing: {get_option('haika_menu_lvl3_item_spacing', '8')}px;
+        --haika-lvl1-padding-right: {$lvl1_padding_right}px;
+        --haika-lvl1-top-padding: {$lvl1_top_padding}px;
+        --haika-lvl1-item-spacing: {$lvl1_item_spacing}px;
+        --haika-lvl2-item-spacing: {$lvl2_item_spacing}px;
+        --haika-lvl3-item-spacing: {$lvl3_item_spacing}px;
     }
 </style>
 CSS;
@@ -165,7 +172,7 @@ CSS;
 
         // Combine the original button with the new menu structure
         $animation_type = get_option('haika_menu_animation_type', 'slide');
-        $sidebar_classes = 'fixed right-0 top-0 h-screen w-80 shadow-lg flex flex-col z-40';
+        $sidebar_classes = 'fixed left-0 top-0 h-screen w-80 shadow-lg flex flex-col z-40';
         if ($animation_type === 'slide') {
             $sidebar_classes .= ' transition-transform duration-500 ease-in-out';
         } else {
@@ -173,15 +180,17 @@ CSS;
         }
 
         $sidebar_html = '
-            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: var(--haika-lvl1-bg); transform: translateX(100%); padding-right: var(--haika-lvl1-padding-right);">
-                <div class="w-full text-right px-12" style="padding-top: var(--haika-lvl1-top-padding);">
-                    <div class="w-2.5 h-2.5 rounded-full mb-12 inline-block" style="background-color: var(--haika-text-color); margin-bottom: var(--haika-lvl1-item-spacing);"></div>
+            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: var(--haika-lvl1-bg); transform: translateX(-100%); padding: var(--haika-lvl1-top-padding) 0 2rem 0;">
+                <div style="padding-right: var(--haika-lvl1-padding-right);">
+                    <div class="w-full text-right px-12">
+                        <div class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: var(--haika-text-color); margin-bottom: var(--haika-lvl1-item-spacing);"></div>
+                    </div>
+                    <nav class="w-full">
+                        <ul class="text-center font-medium text-lg overflow-y-auto max-h-screen" style="color: var(--haika-text-color);">
+                            ' . $menu_items . '
+                        </ul>
+                    </nav>
                 </div>
-                <nav class="w-full">
-                    <ul class="text-center font-medium text-lg overflow-y-auto max-h-screen" style="color: var(--haika-text-color);">
-                        ' . $menu_items . '
-                    </ul>
-                </nav>
             </div>';
 
         $button_container_html = "<div class='{$container_class}'>{$button_html}</div>";
