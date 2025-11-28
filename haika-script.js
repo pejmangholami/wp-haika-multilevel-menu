@@ -109,10 +109,17 @@ jQuery(document).ready(function($) {
     // --- Event Handlers ---
 
     // 1. Hover behavior (for mouse users)
-    sidebar.on('mouseenter', '.group', function() {
+    sidebar.on('mouseenter', 'nav > ul > li', function() {
         const $submenu = $(this).find('.level2-box');
+
+        // If the hovered item has a submenu, show it.
         if ($submenu.length) {
             showSubmenu($submenu);
+        } else {
+            // If the hovered item does NOT have a submenu, close any open one.
+            if (openSubmenu) {
+                hideSubmenu(openSubmenu);
+            }
         }
     });
 
