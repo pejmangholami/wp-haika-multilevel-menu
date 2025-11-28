@@ -36,6 +36,13 @@ class HaikaMultilevelMenu {
         $shape_step_height = get_option('haika_menu_shape_step_height', '25');
         $shape_slope_height = get_option('haika_menu_shape_slope_height', '36');
 
+        // New variables from user request
+        $lvl1_padding_right = get_option('haika_menu_lvl1_padding_right', '0');
+        $lvl1_top_padding = get_option('haika_menu_lvl1_top_padding', '0');
+        $lvl1_item_spacing = get_option('haika_menu_lvl1_item_spacing', '24');
+        $lvl2_item_spacing = get_option('haika_menu_lvl2_item_spacing', '16');
+        $lvl3_item_spacing = get_option('haika_menu_lvl3_item_spacing', '8');
+
         echo <<<CSS
 <style>
     :root {
@@ -49,6 +56,13 @@ class HaikaMultilevelMenu {
         --haika-step-width: {$shape_step_width}px;
         --haika-step-height: {$shape_step_height}px;
         --haika-slope-height: {$shape_slope_height}px;
+
+        /* New variables from user request */
+        --haika-lvl1-padding-right: {$lvl1_padding_right}px;
+        --haika-lvl1-top-padding: {$lvl1_top_padding}px;
+        --haika-lvl1-item-spacing: {$lvl1_item_spacing}px;
+        --haika-lvl2-item-spacing: {$lvl2_item_spacing}px;
+        --haika-lvl3-item-spacing: {$lvl3_item_spacing}px;
     }
 </style>
 CSS;
@@ -95,6 +109,12 @@ CSS;
             'spacing_tablet' => get_option('haika_menu_spacing_tablet', '55'),
             'spacing_mobile' => get_option('haika_menu_spacing_mobile', '50'),
             'animation_type' => get_option('haika_menu_animation_type', 'slide'),
+            'lvl1_margin_right' => get_option('haika_menu_lvl1_margin_right', '0'),
+            'lvl1_top_padding' => get_option('haika_menu_lvl1_top_padding', '0'),
+            'shape_right_offset' => get_option('haika_menu_shape_right_offset', '0'),
+            'lvl1_item_spacing' => get_option('haika_menu_lvl1_item_spacing', '24'),
+            'lvl2_item_spacing' => get_option('haika_menu_lvl2_item_spacing', '16'),
+            'lvl3_item_spacing' => get_option('haika_menu_lvl3_item_spacing', '8'),
         ));
     }
 
@@ -152,7 +172,7 @@ CSS;
 
         // Combine the original button with the new menu structure
         $animation_type = get_option('haika_menu_animation_type', 'slide');
-        $sidebar_classes = 'fixed left-0 top-0 h-screen w-80 shadow-lg flex flex-col py-8 z-40';
+        $sidebar_classes = 'fixed left-0 top-0 h-screen w-80 shadow-lg flex flex-col z-40';
         if ($animation_type === 'slide') {
             $sidebar_classes .= ' transition-transform duration-500 ease-in-out';
         } else {
@@ -160,15 +180,17 @@ CSS;
         }
 
         $sidebar_html = '
-            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: var(--haika-lvl1-bg); transform: translateX(-100%)">
-                <div class="w-full text-right px-12">
-                    <div class="w-2.5 h-2.5 rounded-full mb-12 inline-block" style="background-color: var(--haika-text-color);"></div>
+            <div id="sidebar" class="' . $sidebar_classes . '" style="background-color: var(--haika-lvl1-bg); transform: translateX(-100%); padding: var(--haika-lvl1-top-padding) 0 2rem 0;">
+                <div style="padding-right: var(--haika-lvl1-padding-right);">
+                    <div class="w-full text-right px-12">
+                        <div class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: var(--haika-text-color); margin-bottom: var(--haika-lvl1-item-spacing);"></div>
+                    </div>
+                    <nav class="w-full">
+                        <ul class="text-center font-medium text-lg overflow-y-auto max-h-screen" style="color: var(--haika-text-color);">
+                            ' . $menu_items . '
+                        </ul>
+                    </nav>
                 </div>
-                <nav class="w-full">
-                    <ul class="space-y-6 text-center font-medium text-lg overflow-y-auto max-h-screen" style="color: var(--haika-text-color);">
-                        ' . $menu_items . '
-                    </ul>
-                </nav>
             </div>';
 
         $button_container_html = "<div class='{$container_class}'>{$button_html}</div>";
@@ -208,6 +230,14 @@ CSS;
         register_setting('haika_menu_settings', 'haika_menu_shape_step_width');
         register_setting('haika_menu_settings', 'haika_menu_shape_step_height');
         register_setting('haika_menu_settings', 'haika_menu_shape_slope_height');
+
+        // Register new settings from user request
+        register_setting('haika_menu_settings', 'haika_menu_lvl1_padding_right');
+        register_setting('haika_menu_settings', 'haika_menu_lvl1_top_padding');
+        register_setting('haika_menu_settings', 'haika_menu_shape_right_offset');
+        register_setting('haika_menu_settings', 'haika_menu_lvl1_item_spacing');
+        register_setting('haika_menu_settings', 'haika_menu_lvl2_item_spacing');
+        register_setting('haika_menu_settings', 'haika_menu_lvl3_item_spacing');
     }
 
     public function admin_page() {
@@ -231,6 +261,14 @@ CSS;
             update_option('haika_menu_shape_step_width', intval($_POST['haika_menu_shape_step_width']));
             update_option('haika_menu_shape_step_height', intval($_POST['haika_menu_shape_step_height']));
             update_option('haika_menu_shape_slope_height', intval($_POST['haika_menu_shape_slope_height']));
+
+            // Save new settings from user request
+            update_option('haika_menu_lvl1_padding_right', intval($_POST['haika_menu_lvl1_padding_right']));
+            update_option('haika_menu_lvl1_top_padding', intval($_POST['haika_menu_lvl1_top_padding']));
+            update_option('haika_menu_shape_right_offset', intval($_POST['haika_menu_shape_right_offset']));
+            update_option('haika_menu_lvl1_item_spacing', intval($_POST['haika_menu_lvl1_item_spacing']));
+            update_option('haika_menu_lvl2_item_spacing', intval($_POST['haika_menu_lvl2_item_spacing']));
+            update_option('haika_menu_lvl3_item_spacing', intval($_POST['haika_menu_lvl3_item_spacing']));
 
             // مدیریت آپلود عکس
             if (!empty($_POST['haika_menu_button_icon'])) {
@@ -347,11 +385,53 @@ CSS;
                             <p class="description">انیمیشن باز و بسته شدن منو را انتخاب کنید.</p>
                         </td>
                     </tr>
+
+                    <!-- Spacing Settings -->
+                    <tr><th colspan="2"><h3>تنظیمات فاصله آیتم‌ها</h3></th></tr>
+                    <tr>
+                        <th scope="row">فاصله بین آیتم‌های سطح ۱</th>
+                        <td>
+                            <input type="number" name="haika_menu_lvl1_item_spacing" value="<?php echo esc_attr(get_option('haika_menu_lvl1_item_spacing', '24')); ?>" /> پیکسل
+                            <p class="description">فاصله عمودی بین هر آیتم در منوی سطح ۱.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">فاصله بین آیتم‌های سطح ۲</th>
+                        <td>
+                            <input type="number" name="haika_menu_lvl2_item_spacing" value="<?php echo esc_attr(get_option('haika_menu_lvl2_item_spacing', '16')); ?>" /> پیکسل
+                            <p class="description">فاصله عمودی بین هر آیتم در منوی سطح ۲.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">فاصله بین آیتم‌های سطح ۳</th>
+                        <td>
+                            <input type="number" name="haika_menu_lvl3_item_spacing" value="<?php echo esc_attr(get_option('haika_menu_lvl3_item_spacing', '8')); ?>" /> پیکسل
+                            <p class="description">فاصله عمودی بین هر آیتم در منوی سطح ۳.</p>
+                        </td>
+                    </tr>
                 </table>
 
                 <h2>تنظیمات ظاهری</h2>
                 <table class="form-table">
+                    <!-- General Menu Settings -->
+                    <tr><th colspan="2"><h3>تنظیمات کلی منو</h3></th></tr>
+                    <tr>
+                        <th scope="row">فاصله داخلی منو سطح ۱ از راست</th>
+                        <td>
+                            <input type="number" name="haika_menu_lvl1_padding_right" value="<?php echo esc_attr(get_option('haika_menu_lvl1_padding_right', '0')); ?>" /> پیکسل
+                            <p class="description">باکس عمودی منوی سطح ۱ را از سمت راست بزرگتر می‌کند بدون اینکه جایگاه نوشته‌ها تغییر کند.</p>
+                        </td>
+                    </tr>
+                     <tr>
+                        <th scope="row">فاصله آیتم‌ها از بالای منوی سطح ۱</th>
+                        <td>
+                            <input type="number" name="haika_menu_lvl1_top_padding" value="<?php echo esc_attr(get_option('haika_menu_lvl1_top_padding', '0')); ?>" /> پیکسل
+                            <p class="description">یک فضای خالی در بالای آیتم‌های منوی اصلی (و بولت) اضافه می‌کند.</p>
+                        </td>
+                    </tr>
+
                     <!-- Color Settings -->
+                    <tr><th colspan="2"><h3>تنظیمات رنگ‌بندی</h3></th></tr>
                     <tr>
                         <th scope="row">رنگ پس‌زمینه سطح ۱</th>
                         <td><input type="color" name="haika_menu_lvl1_bg_color" value="<?php echo esc_attr($lvl1_bg_color); ?>" /></td>
@@ -383,6 +463,13 @@ CSS;
                         <td>
                             <input type="number" name="haika_menu_shape_top_offset" value="<?php echo esc_attr($shape_top_offset); ?>" /> پیکسل
                             <p class="description">موقعیت عمودی شروع پله از بالای باکس (به پیکسل).</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">فاصله از راست (Right Offset)</th>
+                        <td>
+                            <input type="number" name="haika_menu_shape_right_offset" value="<?php echo esc_attr(get_option('haika_menu_shape_right_offset', '0')); ?>" /> پیکسل
+                            <p class="description">موقعیت افقی منوی سطح ۲ را کنترل می‌کند. مقدار منفی آن را به چپ می‌برد.</p>
                         </td>
                     </tr>
                     <tr>
@@ -503,10 +590,10 @@ class Haika_Tailwind_Menu_Walker extends Walker_Nav_Menu {
             // Level 2 submenu wrapper
             $output .= '<div class="hidden group-hover:flex fixed shadow-xl transition-all duration-300 z-50 level2-box">';
             $output .= '<div class="w-full p-8 pt-20 relative z-10 overflow-y-auto">';
-            $output .= '<ul class="space-y-4 text-xl font-semibold w-full text-left" style="color: var(--haika-text-color);">';
+            $output .= '<ul class="text-xl font-semibold w-full text-left" style="color: var(--haika-text-color);">';
         } elseif ($depth === 1) {
             // Level 3 submenu
-            $output .= '<ul class="hidden level3-submenu mr-6 mt-3 space-y-2 text-lg font-normal animate-slideIn text-right" style="color: var(--haika-text-color);">';
+            $output .= '<ul class="hidden level3-submenu mr-6 mt-3 text-lg font-normal animate-slideIn text-right" style="color: var(--haika-text-color);">';
         }
     }
 
@@ -521,30 +608,34 @@ class Haika_Tailwind_Menu_Walker extends Walker_Nav_Menu {
 
     // start_el is called for each menu item.
     public function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+        $spacing_style = '';
         if ($depth === 0) {
             // Level 1 items
+            $spacing_style = 'style="margin-bottom: var(--haika-lvl1-item-spacing);"';
             $is_parent = in_array('menu-item-has-children', $item->classes);
             $li_classes = $is_parent ? 'group relative text-right px-12' : 'text-right px-12';
-            $output .= '<li class="' . $li_classes . '">';
+            $output .= '<li class="' . $li_classes . '" ' . $spacing_style . '>';
             $output .= '<a class="block py-2 hover:opacity-70 transition-opacity cursor-pointer" href="' . esc_url($item->url) . '">' . esc_html($item->title) . '</a>';
         } elseif ($depth === 1) {
             // Level 2 items
+            $spacing_style = 'style="margin-bottom: var(--haika-lvl2-item-spacing);"';
             $is_parent = in_array('menu-item-has-children', $item->classes);
             if ($is_parent) {
-                $output .= '<li class="level3-parent">';
+                $output .= '<li class="level3-parent" ' . $spacing_style . '>';
                 $output .= '<div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity level3-toggle">';
                 $output .= '<span class="w-3 h-3 bg-primary rounded-full"></span>';
                 $output .= '<span>' . esc_html($item->title) . '</span>';
                 $output .= '</div>';
             } else {
-                $output .= '<li class="flex items-center gap-3">';
+                $output .= '<li class="flex items-center gap-3" ' . $spacing_style . '>';
                 $output .= '<span class="w-3 h-3 bg-primary rounded-full"></span>';
                 $output .= '<a href="' . esc_url($item->url) . '" class="hover:opacity-70 transition-opacity">' . esc_html($item->title) . '</a>';
                 $output .= '</li>';
             }
         } elseif ($depth === 2) {
             // Level 3 items
-            $output .= '<li><a class="hover:text-primary transition-colors block py-1" href="' . esc_url($item->url) . '">' . esc_html($item->title) . '</a></li>';
+            $spacing_style = 'style="margin-bottom: var(--haika-lvl3-item-spacing);"';
+            $output .= '<li ' . $spacing_style . '><a class="hover:text-primary transition-colors block py-1" href="' . esc_url($item->url) . '">' . esc_html($item->title) . '</a></li>';
         }
     }
 

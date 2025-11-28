@@ -4,7 +4,7 @@ jQuery(document).ready(function($) {
     let isMenuOpen = false;
 
     // Get values from localized script
-    const { spacing_desktop, spacing_tablet, spacing_mobile, animation_type } = haika_menu_vars;
+    const { spacing_desktop, spacing_tablet, spacing_mobile, animation_type, shape_right_offset } = haika_menu_vars;
 
     const spacing = {
         desktop: spacing_desktop || 65,
@@ -83,9 +83,10 @@ jQuery(document).ready(function($) {
             const sidebarRect = $('#sidebar')[0].getBoundingClientRect();
 
             // Position the submenu
+            const rightOffset = parseInt(shape_right_offset, 10) || 0;
             $submenuWrapper.css({
                 top: rect.top,
-                left: sidebarRect.right - 100, // 100px overlap
+                left: sidebarRect.right - 100 + rightOffset, // 100px overlap + offset
             });
 
             // Calculate and set max-height
