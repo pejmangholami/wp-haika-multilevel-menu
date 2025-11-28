@@ -588,7 +588,7 @@ class Haika_Tailwind_Menu_Walker extends Walker_Nav_Menu {
     public function start_lvl(&$output, $depth = 0, $args = null) {
         if ($depth === 0) {
             // Level 2 submenu wrapper
-            $output .= '<div class="hidden group-hover:flex fixed shadow-xl transition-all duration-300 z-50 level2-box">';
+            $output .= '<div class="hidden fixed shadow-xl transition-all duration-300 z-50 level2-box">';
             $output .= '<div class="w-full p-8 pt-20 relative z-10 overflow-y-auto">';
             $output .= '<ul class="text-xl font-semibold w-full text-left" style="color: var(--haika-text-color);">';
         } elseif ($depth === 1) {
