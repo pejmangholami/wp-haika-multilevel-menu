@@ -72,10 +72,6 @@
     direction: rtl;
 }
 
-.group:hover .group-hover\:flex {
-    display: flex;
-}
-
 @keyframes slideIn {
     from {
         opacity: 0;
@@ -137,4 +133,16 @@
 .overflow-y-auto {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* --- Submenu Visibility Control --- */
+.level2-box {
+    display: none; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.level2-box.is-visible {
+    display: flex; /* Shown with JS */
+    opacity: 1;
 }

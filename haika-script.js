@@ -4,7 +4,7 @@ jQuery(document).ready(function($) {
     let isMenuOpen = false;
 
     // Get values from localized script
-    const { spacing_desktop, spacing_tablet, spacing_mobile, animation_type } = haika_menu_vars;
+    const { spacing_desktop, spacing_tablet, spacing_mobile, animation_type, shape_right_offset } = haika_menu_vars;
 
     const spacing = {
         desktop: spacing_desktop || 65,
@@ -36,6 +36,8 @@ jQuery(document).ready(function($) {
         } else {
             sidebar.addClass('opacity-0 pointer-events-none');
         }
+        // Also ensure any open submenus are closed
+        $('#sidebar .level2-box.is-visible').removeClass('is-visible');
     };
 
     if (menuToggle.length && sidebar.length) {
@@ -48,7 +50,7 @@ jQuery(document).ready(function($) {
 
     // Level 3 submenu toggle
     $(document).on('click', '.level3-toggle', function(e) {
-        e.stopPropagation(); // Prevent document click handler from firing
+        e.stopPropagation();
         const toggle = $(e.currentTarget);
         const parent = toggle.closest('.level3-parent');
         const submenu = parent.find('.level3-submenu');
@@ -72,26 +74,35 @@ jQuery(document).ready(function($) {
         }
     });
 
-    // Dynamically set max-height and position for level 2 submenus
-    $('#sidebar').on('mouseenter', '.group', function() {
+    // --- Final, simplified submenu logic ---
+    const topLevelListItems = '#sidebar > div > nav > ul > li';
+
+    $('#sidebar').on('mouseenter', topLevelListItems, function() {
         const $this = $(this);
         const $submenuWrapper = $this.find('.level2-box');
-        const $submenuContent = $submenuWrapper.find('.overflow-y-auto');
 
+        // Hide all other submenus
+        $('#sidebar .level2-box').not($submenuWrapper).removeClass('is-visible');
+
+        // Show the target submenu if it exists
         if ($submenuWrapper.length) {
+            $submenuWrapper.addClass('is-visible');
+
+            // Dynamic positioning logic
+            const $submenuContent = $submenuWrapper.find('.overflow-y-auto');
             const rect = $this[0].getBoundingClientRect();
             const sidebarRect = $('#sidebar')[0].getBoundingClientRect();
 
-            // Position the submenu
+            const rightOffset = parseInt(shape_right_offset, 10) || 0;
             $submenuWrapper.css({
                 top: rect.top,
-                left: sidebarRect.right - 100, // 100px overlap
+                left: sidebarRect.right + rightOffset,
             });
 
-            // Calculate and set max-height
             const windowHeight = $(window).height();
-            const maxHeight = windowHeight - rect.top - 20; // 20px buffer
+            const maxHeight = windowHeight - rect.top - 20;
             $submenuContent.css('max-height', `${maxHeight}px`);
         }
     });
+
 });
