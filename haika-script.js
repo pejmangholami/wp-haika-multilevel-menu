@@ -68,45 +68,21 @@ jQuery(document).ready(function($) {
     let openSubmenu = null;
     let lastTappedItem = null;
 
-    // Close menu when clicking outside of it
-    $(document).on('click', function(e) {
-        const isClickInsideSidebar = sidebar.is(e.target) || sidebar.has(e.target).length > 0;
-        const isClickInsideMenuToggle = menuToggle.is(e.target) || menuToggle.has(e.target).length > 0;
-
-        // Close main menu if click is outside
-        if (isMenuOpen && !isClickInsideMenuToggle && !isClickInsideSidebar) {
-            closeMenu();
-        }
-
-        // On touch devices, also close L2 submenu if click is outside the sidebar
-        if (isTouchDevice && openSubmenu && !isClickInsideSidebar) {
-            hideSubmenu(openSubmenu);
-        }
-    });
-
-    // Re-apply spacing on window resize
-    $(window).on('resize', () => {
-        if (isMenuOpen) {
-            sidebar.css('transform', `translateX(${getcurrentSpacing()}px)`);
-        }
-    });
-
-    // --- Sticky Level 2 Menu Logic ---
+    // --- Shared Functions ---
     const showSubmenu = ($submenuWrapper) => {
         if (!$submenuWrapper || $submenuWrapper.length === 0) return;
+        if (openSubmenu && openSubmenu[0] === $submenuWrapper[0]) return; // Already open
 
-        // Hide any other open submenu first
-        if (openSubmenu && openSubmenu[0] !== $submenuWrapper[0]) {
+        if (openSubmenu) {
             hideSubmenu(openSubmenu);
         }
 
-        // Calculate position and max-height
         const $parentLi = $submenuWrapper.closest('.group');
         const rect = $parentLi[0].getBoundingClientRect();
         const sidebarRect = sidebar[0].getBoundingClientRect();
         const rightOffset = parseInt(shape_right_offset, 10) || 0;
         const windowHeight = $(window).height();
-        const maxHeight = windowHeight - rect.top - 20; // 20px buffer
+        const maxHeight = windowHeight - rect.top - 20;
 
         $submenuWrapper.css({
             top: rect.top,
@@ -121,45 +97,67 @@ jQuery(document).ready(function($) {
     const hideSubmenu = ($submenuWrapper) => {
         if ($submenuWrapper && $submenuWrapper.length > 0) {
             $submenuWrapper.removeClass('flex').addClass('hidden');
+            // Also hide any open L3 submenus within this L2 menu
+            $submenuWrapper.find('.level3-submenu').addClass('hidden');
         }
-        if (openSubmenu && openSubmenu[0] === $submenuWrapper[0]) {
+        if (openSubmenu && (!($submenuWrapper) || openSubmenu[0] === $submenuWrapper[0])) {
             openSubmenu = null;
         }
-        lastTappedItem = null; // Reset for touch devices
+        lastTappedItem = null;
     };
 
-    if (isTouchDevice) {
-        // --- Touch Device Logic ---
-        sidebar.on('click', '.group > a', function(e) {
-            const $parentLi = $(this).closest('.group');
-            const $submenu = $parentLi.find('.level2-box');
+    // --- Event Handlers ---
 
-            if ($submenu.length === 0) return;
-
-            if (lastTappedItem && lastTappedItem[0] === $parentLi[0]) {
-                lastTappedItem = null;
-                return; // Allow navigation on second tap
-            }
-
-            e.preventDefault();
+    // 1. Hover behavior (for mouse users)
+    sidebar.on('mouseenter', '.group', function() {
+        const $submenu = $(this).find('.level2-box');
+        if ($submenu.length) {
             showSubmenu($submenu);
-            lastTappedItem = $parentLi;
-        });
+        }
+    });
 
-    } else {
-        // --- Desktop Mouse Logic ---
-        sidebar.on('mouseenter', '.group', function() {
-            const $submenu = $(this).find('.level2-box');
-            if ($submenu.length) {
-                showSubmenu($submenu);
-            }
-        });
+    sidebar.on('mouseleave', function(e) {
+        if (openSubmenu && !$(e.relatedTarget).closest(openSubmenu).length) {
+            hideSubmenu(openSubmenu);
+        }
+    });
 
-        sidebar.on('mouseleave', function(e) {
-            // Check if there's an open submenu and if the mouse is not moving into it
-            if (openSubmenu && !$(e.relatedTarget).closest(openSubmenu).length) {
-                hideSubmenu(openSubmenu);
-            }
-        });
-    }
+    // 2. Click behavior (for touch users)
+    sidebar.on('click', '.group > a', function(e) {
+        if (!isTouchDevice) return; // Only apply this logic on touch devices
+
+        const $parentLi = $(this).closest('.group');
+        const $submenu = $parentLi.find('.level2-box');
+
+        if ($submenu.length === 0) return; // Not a parent item
+
+        // If the same item is tapped again and its submenu is open, allow navigation.
+        if (lastTappedItem && lastTappedItem[0] === $parentLi[0]) {
+            lastTappedItem = null; // Reset for next interaction
+            return;
+        }
+
+        // First tap: prevent navigation, show the submenu.
+        e.preventDefault();
+        showSubmenu($submenu);
+        lastTappedItem = $parentLi;
+    });
+
+    // 3. Close menu when clicking outside
+    $(document).on('click', function(e) {
+        const isClickInsideSidebar = sidebar.is(e.target) || sidebar.has(e.target).length > 0;
+        const isClickInsideMenuToggle = menuToggle.is(e.target) || menuToggle.has(e.target).length > 0;
+        const isClickInsideOpenSubmenu = openSubmenu ? (openSubmenu.is(e.target) || openSubmenu.has(e.target).length > 0) : false;
+
+        if (isMenuOpen && !isClickInsideMenuToggle && !isClickInsideSidebar && !isClickInsideOpenSubmenu) {
+            closeMenu();
+        }
+    });
+
+    // 4. Resize handler
+    $(window).on('resize', () => {
+        if (isMenuOpen) {
+            sidebar.css('transform', `translateX(${getcurrentSpacing()}px)`);
+        }
+    });
 });
